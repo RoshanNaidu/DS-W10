@@ -32,28 +32,38 @@ with open('model_1.pickle', 'wb') as f:
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.preprocessing import LabelEncoder
 
-# Function to map roast values to numerical labels
+# Function to map roast category
 def roast_category(roast):
+    # Convert roast string values to numeric categories
     if pd.isnull(roast):
         return None
-    return roast
+    roast_map = 
+    {
+        'Light': 0,
+        'Medium-Light': 1,
+        'Medium': 2,
+        'Medium-Dark': 3,
+        'Dark': 4
+    }
+    return roast_map.get(roast, None)
 
-# Apply the roast_category function and encode the roast column
-data['roast'] = data['roast'].apply(roast_category)
-label_encoder = LabelEncoder()
-data['roast'] = label_encoder.fit_transform(data['roast'].astype(str))
+# Apply mapping to create roast_cat column
+data['roast_cat'] = data['roast'].apply(roast_category)
 
-# Select features and target variable for the new model
-X = data[['100g_USD', 'roast']]
+# Select features and target for Decision Tree model
+X = data[['100g_USD', 'roast_cat']]
 y = data['rating']
 
-# Split the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
-# Create and train the Decision Tree Regressor model
+# Train Decision Tree Regressor
+print("🔹 Training Decision Tree Regressor model...")
 dt_model = DecisionTreeRegressor(random_state=42)
 dt_model.fit(X_train, y_train)
 
-# Save the trained model as a pickle file
+# Save model
 with open('model_2.pickle', 'wb') as f:
     pickle.dump(dt_model, f)
